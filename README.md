@@ -9,4 +9,4 @@ that represents an independent microservice that allows viewing of USAF EPRs/ACA
 
 POSTGRES SCHEMA (ERD):
 
-![Image of ERD](https://github.com/flash548/epr_tracker/users.png)
+![Image of ERD](https://github.com/flash548/epr_tracker/blob/master/users.png)
