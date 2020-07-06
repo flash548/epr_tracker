@@ -11,7 +11,7 @@ CREATE TABLE users (
 
 CREATE TABLE rater_matrix (
     id serial PRIMARY KEY,
-    user_id integer NOT NULL REFERENCES users,
+    user_id integer NOT NULL REFERENCES users ON DELETE CASCADE,
     supervisor_id integer NOT NULL REFERENCES users
 );
 
@@ -20,7 +20,7 @@ CREATE TABLE rater_matrix (
 -- should be mid way thru EPR interval
 CREATE TABLE forms (
     id serial PRIMARY KEY,
-    user_id integer NOT NULL REFERENCES users,
+    user_id integer NOT NULL REFERENCES users ON DELETE CASCADE,
     epr_last_done timestamp NOT NULL,
     epr_next_due timestamp NOT NULL,  
     aca_last_done timestamp NOT NULL, 

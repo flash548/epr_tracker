@@ -18,9 +18,13 @@ app.use(
   })
 )
 
-app.get('/users', db.getUsers)
+app.get('/user', db.getUserId)
 app.get('/formsData', db.getFormsData)
 app.get('/getRecord', db.getRecordData)
+app.post('/addUser', db.addUser)
+app.post('/deleteUser', db.deleteUser)
+app.post('/updateUserForms', db.updateUserForms)
+app.post('/updateUserRater', db.updateUserRater)
 
 app.listen(port, () => {
     console.log(`sql-exercise running on port ${port}.`)

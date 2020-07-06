@@ -13,7 +13,7 @@ function sc(s) { return s[0].toUpperCase() + s.slice(1); }
 // UTILITY FUNCTION
 // GET: get a user's user_id so we can use all these other functions... based on their username or first/last name
 //  can be: /users[?username=<username>|lastname=<lastname>|firstname=<firstname>]
-const getUsers = (request, response) => {
+const getUserId = (request, response) => {
 
     // search by fname/lname
     if (request.query.lastname && request.query.firstname) {
@@ -59,7 +59,7 @@ const getFormsData = (request, response) => {
             if (error) {
                 response.status(500).send("Error fetching DB results")
             }
-            
+
             response.status(200).json(results.rows)
             })
     }
@@ -90,17 +90,103 @@ const getFormsData = (request, response) => {
 // UTILITY FUNCTION
 // POST: add an airman as a user and populate their initial EPR/ACA data/dates
 //  body format: {
-//      firstname: 
-//      lastname:
-//      username: 
+//      first_name: 
+//      middle_initial:
+//      last_name:
+//      user_name: 
 //      rank:
 //      supervisor_id:
 //      epr_last_done: DD MON-ABBREV YYYY
+//      epr_next_due: DD MON-ABBREV YYYY
 //      aca_last_done: DD MON-ABBREV YYYY
+//      aca_next_due: DD MON-ABBREV YYYY
 // }
 //
 // --> Returns the newly assigned user_id
+const addUser = async (request, response) => {
 
+    if (request.body.first_name && request.body.middle_initial && request.body.last_name &&
+             request.body.user_name && request.body.rank && request.body.supervisor_id && request.body.epr_last_done &&
+             request.body.aca_last_done && request.body.epr_next_due && request.body.aca_next_due) {
+            
+            try {
+                // first validate the supervisor ID exists... 
+                let superExists = await pool.query(`
+                    SELECT fname, lname from users WHERE user_id = $1`, [request.body.supervisor_id])
+
+                if (!superExists.rows[0]) {
+                    response.status(500).send("Invalid supervisor ID!")
+                    return;
+                }
+
+
+                // now add the user into the users table
+                let addResp = await pool.query(`
+                    INSERT INTO 
+                        users (fname,mi,lname,username,rank) 
+                    VALUES ($1,$2,$3,$4,$5) RETURNING user_id`, 
+                    [request.body.first_name,request.body.middle_initial,request.body.last_name,request.body.user_name,request.body.rank]);
+
+                // no point in continuing if failed to add user
+                if (!addResp.rows[0].user_id) {
+                    response.status(500).send("Error adding user: User Not Added!")
+                    return;
+                }
+
+                // add the supervisor info for this new user_id
+                let supervisor_response = await pool.query(`
+                    INSERT INTO
+                        rater_matrix (user_id, supervisor_id)
+                    VALUES
+                        ($1, $2) RETURNING id`, [addResp.rows[0].user_id, request.body.supervisor_id])
+
+                // no point in continuing if failed here
+                if (!supervisor_response.rows[0].id) {
+                    response.status(500).send("Error adding supervisor info!")
+                    return;
+                }
+
+                // add the EPR/ACA info
+                let epr_response = await pool.query(`
+                    INSERT INTO
+                        forms (user_id, epr_last_done, epr_next_due, aca_last_done, aca_next_due)
+                    VALUES
+                        (
+                            $1,
+                            to_timestamp($2, 'DD Mon YYYY'),
+                            to_timestamp($3, 'DD Mon YYYY'),
+                            to_timestamp($4, 'DD Mon YYYY'),
+                            to_timestamp($5, 'DD Mon YYYY') 
+                        ) RETURNING id`, 
+                        [addResp.rows[0].user_id, request.body.epr_last_done, request.body.epr_next_due, request.body.aca_last_done, request.body.aca_next_due])
+
+                if (!epr_response.rows[0].id) {
+                    response.status(500).send("Error adding EPR data!")
+                    return;
+                }
+
+                response.status(200).json(addResp.rows[0].user_id);
+            }
+            catch (e) {
+                console.log(e);
+                response.status(500).send("DB Error!")
+            }
+    }
+    else {
+        response.status(500).send("Not all fields present in request!")
+    }
+}
+
+// UTILITY FUNCTION
+// POST: remove an airman's data complete from the database
+//  body format: {
+//      user_id
+//}
+const deleteUser = async (request, response) => {
+    let resp = await pool.query("DELETE FROM users WHERE user_id = $1 RETURNING user_id", [request.body.user_id])    
+    if (!resp.rows[0]) response.status(500).send("Error deleting user")
+    else response.status(200).json(resp.rows[0].user_id);
+}
 
 // UTILITY FUNCTION
 // POST: update an airman's EPR/ACA table entry
@@ -108,6 +194,30 @@ const getFormsData = (request, response) => {
 //      user_id,
 //      any of <epr_last_done>, <epr_next_due>, <aca_last_done>, <aca_next_due>: <new_date in DD MON-ABBREV YYYY>
 //}
+const updateUserForms = async (request, response) => {
+    
+    if (! (request.body.user_id && request.body.supervisor_id)) {
+        response.status(500).send("Invalid fields specified!")
+        return;
+    }
+}
+
+// UTILITY FUNCTION
+// POST: update an airman's rater
+//  body format: {
+//      user_id,
+//      rater_id
+//}
+const updateUserRater = async (request, response) => {
+    if (! (request.body.user_id && request.body.supervisor_id)) {
+        response.status(500).send("Invalid fields specified!")
+        return;
+    }
+
+    let resp = await pool.query("UPDATE rater_matrix SET supervisor_id = $1 WHERE user_id = $2 RETURNING user_id", [request.body.supervisor_id, request.body.user_id])    
+    if (!resp.rows[0]) response.status(500).send("Error updating user")
+    else response.status(200).json(resp.rows[0].user_id);
+}
 
 
 
@@ -194,10 +304,12 @@ const getRecordData = async (request, response) => {
         }
 }
 
-
-
 module.exports = {
-    getUsers,
+    getUserId,
     getFormsData,
+    addUser,
+    deleteUser,
+    updateUserForms,
+    updateUserRater,
     getRecordData,
 };
