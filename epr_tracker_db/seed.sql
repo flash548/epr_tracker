@@ -106,15 +106,4 @@ INSERT INTO forms (user_id,epr_last_done,epr_next_due,aca_last_done,aca_next_due
     to_timestamp('30 OCT 2019', 'DD Mon YYYY'), to_timestamp('30 OCT 2020', 'DD Mon YYYY')
 );
 
--- see data for all the folks that SSgt John Public rates
-SELECT users.fname, 
-       users.lname, 
-       users.rank,
-       forms.epr_last_done,
-       forms.epr_next_due,
-       forms.aca_last_done,
-       forms.aca_next_due from rater_matrix 
-    inner join users on (users.user_id = rater_matrix.user_id) 
-    inner join forms on (users.user_id = forms.user_id) 
-    where rater_matrix.supervisor_id = (SELECT user_id FROM users where username = 'publicjq') 
     

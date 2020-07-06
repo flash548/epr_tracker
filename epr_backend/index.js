@@ -25,6 +25,7 @@ app.post('/addUser', db.addUser)
 app.post('/deleteUser', db.deleteUser)
 app.post('/updateUserForms', db.updateUserForms)
 app.post('/updateUserRater', db.updateUserRater)
+app.post('/updateUserData', db.updateUserData)
 
 app.listen(port, () => {
     console.log(`sql-exercise running on port ${port}.`)

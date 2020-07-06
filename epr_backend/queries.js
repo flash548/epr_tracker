@@ -195,11 +195,133 @@ const deleteUser = async (request, response) => {
 //      any of <epr_last_done>, <epr_next_due>, <aca_last_done>, <aca_next_due>: <new_date in DD MON-ABBREV YYYY>
 //}
 const updateUserForms = async (request, response) => {
-    
-    if (! (request.body.user_id && request.body.supervisor_id)) {
-        response.status(500).send("Invalid fields specified!")
+
+    if (! (request.body.user_id)) {
+        response.status(500).send("No User ID Specified!")
         return;
     }
+
+    try {
+        for (let fieldname in request.body) {
+            if (fieldname == 'user_id') continue;
+            
+            switch (fieldname) {
+                case 'epr_last_done':
+                    {
+                        let resp = await pool.query("UPDATE forms SET epr_last_done = to_timestamp($1, 'DD Mon YYYY') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        if (!resp.rows[0]) {
+                            response.status(500).send("Error updating EPR_LAST_DONE record!")
+                            return;
+                        }                     
+                    }
+                    break;
+                case 'epr_next_due':
+                    {
+                        let resp = await pool.query("UPDATE forms SET epr_next_due = to_timestamp($1, 'DD Mon YYYY') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        if (!resp.rows[0]) {
+                            response.status(500).send("Error updating EPR_NEXT_DUE record!")
+                            return;
+                        }                     
+                    }
+                    break;
+                case 'aca_last_done':
+                    {
+                        let resp = await pool.query("UPDATE forms SET aca_last_done = to_timestamp($1, 'DD Mon YYYY') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        if (!resp.rows[0]) {
+                            response.status(500).send("Error updating ACA_LAST_DONE record!")
+                            return;
+                        }                     
+                    }
+                    break;
+                case 'aca_next_due':
+                    {
+                        let resp = await pool.query("UPDATE forms SET aca_next_due = to_timestamp($1, 'DD Mon YYYY') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        if (!resp.rows[0]) {
+                            response.status(500).send("Error updating ACA_NEXT_DUE record!")
+                            return;
+                        }                     
+                    }
+                    break;
+                default:
+                    response.status(500).send("Invalid field name specified!");
+                    return;
+                }                
+        }
+        response.status(200).json(request.body.user_id);
+    }
+    catch (e) {
+        console.log(e)
+        response.status(500).send("Error updating database!")
+    }
+
+}
+
+// UTILITY FUNCTION
+// POST: update an airman's personnel data
+//  body format: {
+//      user_id,
+//      any of <fname> <lname> <rank>
+//}
+const updateUserData = async (request, response) => {
+
+    if (! (request.body.user_id)) {
+        response.status(500).send("No User ID Specified!")
+        return;
+    }
+
+    try {
+        for (let fieldname in request.body) {
+            if (fieldname == 'user_id') continue;
+            
+            switch (fieldname) {
+                case 'fname':
+                    {
+                        let resp = await pool.query("UPDATE users SET fname = $1 WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        if (!resp.rows[0]) {
+                            response.status(500).send("Error updating FIRST NAME record!")
+                            return;
+                        }                     
+                    }
+                    break;
+                case 'mi':
+                    {
+                        let resp = await pool.query("UPDATE users SET mi = $1 WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        if (!resp.rows[0]) {
+                            response.status(500).send("Error updating MIDDLE INITIAL record!")
+                            return;
+                        }                     
+                    }
+                    break;                    
+                case 'lname':
+                    {
+                        let resp = await pool.query("UPDATE users SET lname = $1 WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        if (!resp.rows[0]) {
+                            response.status(500).send("Error updating LAST NAME record!")
+                            return;
+                        }                     
+                    }
+                    break;
+                case 'rank':
+                    {
+                        let resp = await pool.query("UPDATE forms SET rank = $1 WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        if (!resp.rows[0]) {
+                            response.status(500).send("Error updating RANK record!")
+                            return;
+                        }                     
+                    }
+                    break;               
+                default:
+                    response.status(500).send("Invalid field name specified!");
+                    return;
+                }                
+        }
+        response.status(200).json(request.body.user_id);
+    }
+    catch (e) {
+        console.log(e)
+        response.status(500).send("Error updating database!")
+    }
+
 }
 
 // UTILITY FUNCTION
@@ -311,5 +433,6 @@ module.exports = {
     deleteUser,
     updateUserForms,
     updateUserRater,
+    updateUserData,
     getRecordData,
 };
