@@ -10,7 +10,6 @@ const pool = new Pool({
 // helper function: returns a string sentence-cased (first letter captialized)
 function sc(s) { return s[0].toUpperCase() + s.slice(1); }
 
-// UTILITY FUNCTION
 // GET: get a user's user_id so we can use all these other functions... based on their username or first/last name
 //  can be: /users[?username=<username>|lastname=<lastname>|firstname=<firstname>]
 const getUserId = (request, response) => {
@@ -46,7 +45,6 @@ const getUserId = (request, response) => {
     }
 }
 
-// UTILITY FUNCTION
 // GET: get a single airman's EPR/ACA record (or all if no params provided)
 //  can be: /formsData[?username=<username>|lastname=<lastname>|firstname=<firstname>]
 const getFormsData = (request, response) => {
@@ -87,7 +85,6 @@ const getFormsData = (request, response) => {
     }
 }
 
-// UTILITY FUNCTION
 // POST: add an airman as a user and populate their initial EPR/ACA data/dates
 //  body format: {
 //      first_name: 
@@ -177,7 +174,6 @@ const addUser = async (request, response) => {
     }
 }
 
-// UTILITY FUNCTION
 // POST: remove an airman's data complete from the database
 //  body format: {
 //      user_id
@@ -188,7 +184,6 @@ const deleteUser = async (request, response) => {
     else response.status(200).json(resp.rows[0].user_id);
 }
 
-// UTILITY FUNCTION
 // POST: update an airman's EPR/ACA table entry
 //  body format: {
 //      user_id,
@@ -256,7 +251,6 @@ const updateUserForms = async (request, response) => {
 
 }
 
-// UTILITY FUNCTION
 // POST: update an airman's personnel data
 //  body format: {
 //      user_id,
@@ -324,7 +318,6 @@ const updateUserData = async (request, response) => {
 
 }
 
-// UTILITY FUNCTION
 // POST: update an airman's rater
 //  body format: {
 //      user_id,
