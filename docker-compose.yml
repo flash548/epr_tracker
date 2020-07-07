@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  frontend:
+    build: epr_frontend/build/
+    container_name: frontend
+    depends_on:
+      - 'backend'
+    ports:
+      - '3001:3001'
+
   backend:
     build: epr_backend/
     container_name: backend

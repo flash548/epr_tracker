@@ -16,9 +16,10 @@ class App extends React.Component {
     // local hack I made to be able to pump props in...
     if (!(props.firstname && props.lastname)) {
       let matches = window.location.search.match(/\?firstname=(.+)&lastname=(.+)/)
-      console.log(matches)
-      this.state['firstname'] = matches[1];
-      this.state['lastname'] = matches[2];
+      if (matches) {
+        this.state['firstname'] = matches[1];
+        this.state['lastname'] = matches[2];
+      }
     }
   }
 
