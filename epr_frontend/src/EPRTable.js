@@ -9,7 +9,7 @@ function EPRTable(props) {
         function togglePane(event) {
             event.preventDefault();
             console.log(document.getElementById(event.target.id.split('#')[1]).style)
-            if (document.getElementById(event.target.id.split('#')[1]).style['display'] == "block") {
+            if (document.getElementById(event.target.id.split('#')[1]).style['display'] === "block") {
                 document.getElementById(event.target.id.split('#')[1]).style = "display: none";
             }
             else {
@@ -52,7 +52,7 @@ function EPRTable(props) {
     }
 
     return (
-        (props.userid == 0) ? (<div class="spinner-border text-primary" role="status">
+        (props.userid === 0) ? (<div class="spinner-border text-primary" role="status">
                                 <span class="sr-only">Loading...</span>
                                 </div>) : (props.userid === undefined) ? (<div><h6>User Not Found</h6></div>)
             :            
