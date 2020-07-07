@@ -1,0 +1,21 @@
+.App {
+  text-align: left;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.data {
+  border: 1px solid black;  
+  border-collapse: collapse;
+}
+
+.data th {
+  border: 1px solid black;  
+}
+
+.data td {
+  border: 1px solid black;  
+}

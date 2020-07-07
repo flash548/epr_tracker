@@ -384,10 +384,10 @@ const getRecordData = async (request, response) => {
                             users.mi,
                             users.lname, 
                             users.rank,
-                            forms.epr_last_done,
-                            forms.epr_next_due,
-                            forms.aca_last_done,
-                            forms.aca_next_due 
+                            to_char ( forms.epr_last_done, 'DD MON YYYY' ) as epr_last_done,
+                            to_char ( forms.epr_next_due, 'DD MON YYYY' ) as epr_next_due,
+                            to_char ( forms.aca_last_done, 'DD MON YYYY' ) as aca_last_done,
+                            to_char ( forms.aca_next_due, 'DD MON YYYY' ) as aca_next_due  
                         FROM users INNER JOIN forms on (users.user_id = forms.user_id) 
                         WHERE forms.user_id = $1`, [userid]);
                         
@@ -401,7 +401,6 @@ const getRecordData = async (request, response) => {
                             let data = [];
                             for (let person of superVisorQuery.rows) {                                
                                 let entry = await inner(person.user_id);
-                                console.log(entry);
                                 data.push(entry);
                             }                                                        
                             
@@ -414,7 +413,7 @@ const getRecordData = async (request, response) => {
 
                 // see if rater info ois there/valid
                 if (raterData.rows[0]) { retVal['raterInfo'] = raterData.rows[0]; }
-                else { retVal['raterInfo'] = "Unknown"; }
+                else { retVal['raterInfo'] = { fname: 'Unknown', mi: '',  lname: '', rank: ''} }
 
                 // list the current user and their EPR data and then any nested subordinates...
                 retVal['subordinates'] = await inner(request.query.userid);
