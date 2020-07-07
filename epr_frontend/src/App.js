@@ -70,9 +70,11 @@ class App extends React.Component {
 
   render() {
       return (
-        <div className="App">
-          <h2>EPR/ACA TRACKER</h2>
-          <EPRTable userid={this.state.userid} amnData={this.state.amnData} />
+        <div class="container border border-primary">
+          <div className="App">
+            <h4>EPR/ACA Tracker</h4>
+            <EPRTable userid={this.state.userid} amnData={this.state.amnData} />
+          </div>
         </div>
       )
   }

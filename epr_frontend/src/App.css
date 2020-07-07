@@ -19,3 +19,8 @@
 .data td {
   border: 1px solid black;  
 }
+
+ /* hide the rated people heirarchy initially */
+.pane {
+  display: none;
+}

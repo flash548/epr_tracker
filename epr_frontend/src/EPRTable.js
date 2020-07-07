@@ -2,45 +2,67 @@ import React from 'react';
 
 function EPRTable(props) {
 
-    function dumpTable(data, level) {
-        return data.map(subord => (
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Rank</th>
-                        <th>EPR Last Done</th>
-                        <th>EPR Next Due</th>
-                        <th>ACA Last Done</th>
-                        <th>ACA Next Due</th>
-                    </tr>
-                </thead>
-                <tr>
-                    <td>{subord.data.fname + ' ' + subord.data.mi + ' ' + subord.data.lname}</td>
-                    <td>{subord.data.rank}</td>
-                    <td>{subord.data.epr_last_done}</td>
-                    <td>{subord.data.epr_next_due}</td>
-                    <td>{subord.data.aca_last_done}</td>
-                    <td>{subord.data.aca_next_due}</td>                    
-                </tr>
-                { (subord.reports && subord.reports.length > 0) ? <tr><td></td><td colspan='5'>{dumpTable(subord.reports, level+1)}</td></tr> : '' }
-            </table>
+    // internal helper to parse through nested JSON 
+    //  structure and render a collapsible table widget with Bootstrap
+    function dumpTable(data) {
 
+        function togglePane(event) {
+            event.preventDefault();
+            console.log(document.getElementById(event.target.id.split('#')[1]).style)
+            if (document.getElementById(event.target.id.split('#')[1]).style['display'] == "block") {
+                document.getElementById(event.target.id.split('#')[1]).style = "display: none";
+            }
+            else {
+                document.getElementById(event.target.id.split('#')[1]).style = "display: block";
+            }
+        }
+
+        return data.map(subord => (
+            <div>
+                <table class="table table-sm">
+                    <thead>
+                        <tr class='table-primary'>
+                            <th>Name</th>
+                            <th>Rank</th>
+                            <th>EPR Last Done</th>
+                            <th>EPR Next Due</th>
+                            <th>ACA Last Done</th>
+                            <th>ACA Next Due</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><button class="btn btn-primary" id={`#${subord.data.username}`} onClick={togglePane}>{subord.data.fname + ' ' + subord.data.mi + ' ' + subord.data.lname}</button></td>
+                            <td>{subord.data.rank}</td>
+                            <td>{subord.data.epr_last_done}</td>
+                            <td>{subord.data.epr_next_due}</td>
+                            <td>{subord.data.aca_last_done}</td>
+                            <td>{subord.data.aca_next_due}</td>                    
+                        </tr>
+                    </tbody>                
+                </table>
+                <div class="pane" id={`${subord.data.username}`}>
+                    <div class="card card-body">
+                        { (subord.reports && subord.reports.length > 0) ? dumpTable(subord.reports) : <div>No subordinates</div> }
+                    </div>
+                </div>
+            </div>
             )
         )  
     }
 
     return (
-        (!props.userid) ?
-            (<div><h3>No User provided!</h3></div>)           
+        (props.userid == 0) ? (<div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                                </div>) : (props.userid === undefined) ? (<div><h6>User Not Found</h6></div>)
             :            
                 (<div>
-                    <h3><u>Your Rater</u></h3>
+                    <div class="alert alert-dark" role="alert">Your Rater</div>
                     <p>{props.amnData.raterInfo.rank + ' ' + props.amnData.raterInfo.fname + ' ' + props.amnData.raterInfo.mi + ' ' + props.amnData.raterInfo.lname}</p>
-                    <h3><u>Your Data</u></h3>
-                    <table class="table">
+                    <div class="alert alert-dark" role="alert">Your Data</div>
+                    <table class="table table-sm">
                         <thead>
-                            <tr>
+                            <tr class='table-primary'>
                                 <th>Name</th>
                                 <th>Rank</th>
                                 <th>EPR Last Done</th>
@@ -58,7 +80,7 @@ function EPRTable(props) {
                             </tr>
                         </thead>
                     </table>            
-                    <h3><u>Subordinate Data</u></h3>                                   
+                    <div class="alert alert-dark" role="alert">Your Subordinate Data</div>                                   
                         {
                             dumpTable(props.amnData.subordinates.reports, 0)
                         }
