@@ -116,13 +116,22 @@ const addUser = async (request, response) => {
                     return;
                 }
 
+                // verify that the username is not taken already
+                let usernameExists = await pool.query(`
+                    SELECT username from users WHERE username = $1`, [request.body.user_name])
+
+                if (superExists.rows[0]) {
+                    response.status(500).send("Username already taken!")
+                    return;
+                }
+
 
                 // now add the user into the users table
                 let addResp = await pool.query(`
                     INSERT INTO 
                         users (fname,mi,lname,username,rank) 
                     VALUES ($1,$2,$3,$4,$5) RETURNING user_id`, 
-                    [request.body.first_name,request.body.middle_initial,request.body.last_name,request.body.user_name,request.body.rank]);
+                    [sc(request.body.first_name),sc(request.body.middle_initial),sc(request.body.last_name),request.body.user_name.toLowerCase(),request.body.rank]);
 
                 // no point in continuing if failed to add user
                 if (!addResp.rows[0].user_id) {
@@ -162,7 +171,7 @@ const addUser = async (request, response) => {
                     return;
                 }
 
-                response.status(200).json(addResp.rows[0].user_id);
+                response.status(200).json({ user_id: addResp.rows[0].user_id });
             }
             catch (e) {
                 console.log(e);
@@ -181,7 +190,7 @@ const addUser = async (request, response) => {
 const deleteUser = async (request, response) => {
     let resp = await pool.query("DELETE FROM users WHERE user_id = $1 RETURNING user_id", [request.body.user_id])    
     if (!resp.rows[0]) response.status(500).send("Error deleting user")
-    else response.status(200).json(resp.rows[0].user_id);
+    else response.status(200).json({ user_id: resp.rows[0].user_id });
 }
 
 // POST: update an airman's EPR/ACA table entry
@@ -242,7 +251,7 @@ const updateUserForms = async (request, response) => {
                     return;
                 }                
         }
-        response.status(200).json(request.body.user_id);
+        response.status(200).json({user_id: request.body.user_id} );
     }
     catch (e) {
         console.log(e)
@@ -309,7 +318,7 @@ const updateUserData = async (request, response) => {
                     return;
                 }                
         }
-        response.status(200).json(request.body.user_id);
+        response.status(200).json({user_id: request.body.user_id});
     }
     catch (e) {
         console.log(e)
@@ -331,7 +340,7 @@ const updateUserRater = async (request, response) => {
 
     let resp = await pool.query("UPDATE rater_matrix SET supervisor_id = $1 WHERE user_id = $2 RETURNING user_id", [request.body.supervisor_id, request.body.user_id])    
     if (!resp.rows[0]) response.status(500).send("Error updating user")
-    else response.status(200).json(resp.rows[0].user_id);
+    else response.status(200).json({user_id: resp.rows[0].user_id} );
 }
 
 
