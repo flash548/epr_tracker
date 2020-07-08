@@ -1,8 +1,9 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const db = require('./queries')
+const process = require('process')
 const app = express()
-const port = 3000
+const port = (process.env.NODE_ENV === 'production') ? Number(process.env.PORT_BACK) : 3000
 
 let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");

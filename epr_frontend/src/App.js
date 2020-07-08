@@ -5,8 +5,8 @@ import './App.css';
 class App extends React.Component {
 
   constructor(props) {
-    super(props);
-    this.baseurl = "http://localhost:3000";
+    super(props);    
+    this.baseurl = (process.env.NODE_ENV === 'production') ? '<prod url here>': "http://localhost:3000";
     this.state = { 
         userid : 0,
         amnData: {},

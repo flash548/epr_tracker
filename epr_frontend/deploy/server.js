@@ -1,7 +1,9 @@
 const express = require('express')
 const app = express()
 const path = require('path');
-const port = 3001
+const process = require('process');
+const dotenv = require('dotenv').config()
+const port = process.env.PORT_FRONT;
 
 let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");

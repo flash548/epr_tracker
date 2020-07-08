@@ -4,18 +4,26 @@ services:
   frontend:
     build: epr_frontend/build/
     container_name: frontend
+    environment:
+      HOST_BACK: ${HOST_BACK}
+      PORT_BACK: ${PORT_BACK}
+      HOST_FRONT: ${HOST_FRONT}
+      PORT_FRONT: ${PORT_FRONT}
     depends_on:
       - 'backend'
     ports:
-      - '3001:3001'
+      - ${PORT_FRONT}:${PORT_FRONT}
 
   backend:
     build: epr_backend/
     container_name: backend
+    environment:
+      HOST_BACK: ${HOST_BACK}
+      PORT_BACK: ${PORT_BACK}
     depends_on:
       - 'database'
     ports:
-      - '3000:3000'
+      - "${PORT_BACK}:${PORT_BACK}"
 
   database:
     build: epr_tracker_db
