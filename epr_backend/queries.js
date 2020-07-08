@@ -196,7 +196,7 @@ const deleteUser = async (request, response) => {
 // POST: update an airman's EPR/ACA table entry
 //  body format: {
 //      user_id,
-//      any of <epr_last_done>, <epr_next_due>, <aca_last_done>, <aca_next_due>: <new_date in DD MON-ABBREV YYYY>
+//      any of <epr_last_done>, <epr_next_due>, <aca_last_done>, <aca_next_due>: <new_date in YYYY-MM-DD>
 //}
 const updateUserForms = async (request, response) => {
 
@@ -212,7 +212,7 @@ const updateUserForms = async (request, response) => {
             switch (fieldname) {
                 case 'epr_last_done':
                     {
-                        let resp = await pool.query("UPDATE forms SET epr_last_done = to_timestamp($1, 'DD Mon YYYY') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        let resp = await pool.query("UPDATE forms SET epr_last_done = to_timestamp($1, 'YYYY-MM-DD') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
                         if (!resp.rows[0]) {
                             response.status(500).send("Error updating EPR_LAST_DONE record!")
                             return;
@@ -221,7 +221,7 @@ const updateUserForms = async (request, response) => {
                     break;
                 case 'epr_next_due':
                     {
-                        let resp = await pool.query("UPDATE forms SET epr_next_due = to_timestamp($1, 'DD Mon YYYY') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        let resp = await pool.query("UPDATE forms SET epr_next_due = to_timestamp($1, 'YYYY-MM-DD') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
                         if (!resp.rows[0]) {
                             response.status(500).send("Error updating EPR_NEXT_DUE record!")
                             return;
@@ -230,7 +230,7 @@ const updateUserForms = async (request, response) => {
                     break;
                 case 'aca_last_done':
                     {
-                        let resp = await pool.query("UPDATE forms SET aca_last_done = to_timestamp($1, 'DD Mon YYYY') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        let resp = await pool.query("UPDATE forms SET aca_last_done = to_timestamp($1, 'YYYY-MM-DD') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
                         if (!resp.rows[0]) {
                             response.status(500).send("Error updating ACA_LAST_DONE record!")
                             return;
@@ -239,7 +239,7 @@ const updateUserForms = async (request, response) => {
                     break;
                 case 'aca_next_due':
                     {
-                        let resp = await pool.query("UPDATE forms SET aca_next_due = to_timestamp($1, 'DD Mon YYYY') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
+                        let resp = await pool.query("UPDATE forms SET aca_next_due = to_timestamp($1, 'YYYY-MM-DD') WHERE user_id = $2 RETURNING user_id", [request.body[fieldname], request.body.user_id])
                         if (!resp.rows[0]) {
                             response.status(500).send("Error updating ACA_NEXT_DUE record!")
                             return;
