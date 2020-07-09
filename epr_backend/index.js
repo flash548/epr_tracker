@@ -2,8 +2,9 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const db = require('./queries')
 const process = require('process')
+const dotenv = require('dotenv').config()
 const app = express()
-const port = (process.env.NODE_ENV === 'production') ? Number(process.env.PORT_BACK) : 3000
+const port = process.env.PORT_BACK;
 
 let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
@@ -29,6 +30,6 @@ app.post('/updateUserRater', db.updateUserRater)
 app.post('/updateUserData', db.updateUserData)
 
 app.listen(port, () => {
-    console.log(`sql-exercise running on port ${port}.`)
+    console.log(`epr_backend running on port ${port}.`)
   })
 
