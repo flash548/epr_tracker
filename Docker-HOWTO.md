@@ -28,19 +28,19 @@ backend:
     build: backend/
     container_name: backend
     depends_on:
-    - 'database'
+        - 'database'
     ports:
-    - 4000:4000
+        - 4000:4000
 
 database:
     build: appdb
     container_name: appdb
     volumes:
-    - myappdata:/var/lib/postgresql/data
+        - myappdata:/var/lib/postgresql/data
     environment:
-    POSTGRES_PASSWORD: "password"
-    POSTGRES_USER: "postgres"
-    POSTGRES_DB: "postgres"
+        POSTGRES_PASSWORD: "password"
+        POSTGRES_USER: "postgres"
+        POSTGRES_DB: "postgres"
 
 # Persists data across deployments so data isn't lost
 volumes:
